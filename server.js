@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
+app.use('/resumes',express.static(path.join(__dirname,'public/resumes')))
 app.use('/exam_profile/', router);
 
 connectDb().then(() => {

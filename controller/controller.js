@@ -90,8 +90,22 @@ const retrieveImge = async (req, res) => {
 };
 
 
+const uploadResume =async(req,res)=>{
+    if(req.file){
+        res.status(200).send({
+            message:"Resume uploaded successfully",
+            fileName:req.file.filename,
+            filePath: `/resumes/${req.file.filename}`
+        })
+    }else{
+        res.status(400).send({error:'Resume upload failed'})
+    }
+}
+
+
 module.exports = {
     uploadImage,
     postDataToProfile,
-    retrieveImge
+    retrieveImge,
+    uploadResume
 };

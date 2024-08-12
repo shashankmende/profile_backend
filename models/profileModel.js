@@ -1,7 +1,7 @@
 
 const mongoose = require("mongoose")
 
-const schema1 = new mongoose.Schema({
+const personalSchema = new mongoose.Schema({
     firstName:{
         type:String,
         required:true
@@ -25,10 +25,15 @@ const schema1 = new mongoose.Schema({
     photoPreview:{
         type:String,
         required:false
+    },
+    resumePath:{
+        type:String,
+        required:true
     }
+    
 })
 
-const schema2 = new mongoose.Schema({
+const educationSchema = new mongoose.Schema({
     degreeName:{
         type:String,
         required:true
@@ -48,8 +53,8 @@ const schema2 = new mongoose.Schema({
 })
 
 const profileSchema = new mongoose.Schema({
-    personal:schema1,
-    education:[schema2]
+    personal:personalSchema,
+    education:[educationSchema]
 },{
     timestamps:true
 })

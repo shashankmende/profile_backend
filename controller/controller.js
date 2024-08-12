@@ -1,7 +1,11 @@
 const profileModel = require('../models/profileModel');
+const RegistrationModel = require('../models/registrationModel')
+const jwt = require('jsonwebtoken')
 const fs = require('fs');
+const bcrypt = require('bcrypt')
 const path = require('path');
 const multer = require('multer');
+const registrationModel = require('../models/registrationModel');
 
 // Ensure directory exists
 function ensureDirectoryExists(directoryPath) {
@@ -34,6 +38,17 @@ const upload = multer({
         }
     }
 });
+
+
+///middle ware to check jwt token
+
+
+
+
+
+
+
+
 
 const uploadImage = (req, res) => {
     if (!req.file) {
@@ -102,10 +117,69 @@ const uploadResume =async(req,res)=>{
     }
 }
 
+//registration
+
+const Registration = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        
+        const existingUser = await registrationModel.findOne({ email: email });
+        console.log("existing user", existingUser);
+
+        
+        if (existingUser) {
+            return res.status(400).send({ message: "User already exists" });
+        }
+
+        
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        
+        await registrationModel.create({ email: email, password: hashedPassword });
+
+        
+        return res.status(201).send({ message: "Registration successful" });
+    } catch (error) {
+        console.error("Error in registration:", error);
+        return res.status(500).send({ message: "Internal server error" });
+    }
+};
+
+//login
+const Login = async(req,res)=>{
+    try {
+        const {email,password}=req.body
+        const isExist = await registrationModel.findOne({email:email})
+        if (!isExist){
+            return res.status(404).send({message:"User doesn't exist"})
+        }
+
+        const isPasswordMatched = await bcrypt.compare(password,isExist.password)
+        if (isPasswordMatched){
+
+            const payload = {email:isExist.email}
+
+            const jwtToken =  jwt.sign(payload,process.env.ACCESS_TOKEN,{expiresIn:"24days"})
+
+            return res.status(200).send({message:"Login Successful",jwtToken:jwtToken})
+        }
+        return res.status(404).send({message:"Password is invalid"})
+
+    } catch (error) {
+        return res.status(500).send({message:"Internal server Error"})
+        
+    }
+}
+
+
+
 
 module.exports = {
     uploadImage,
     postDataToProfile,
     retrieveImge,
-    uploadResume
+    uploadResume,
+    Registration,
+    Login
 };

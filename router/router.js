@@ -82,6 +82,23 @@ const storage = multer.diskStorage({
 
 
 
+const authenticateToken = async(req,res,next)=>{
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(" ")[1]
+        if (token==null) return res.status(401).send({message:"No token provided"})
+
+        jwt.verify(token,process.env.ACCESS_TOKEN,(err,payload)=>{
+            if (err) return res.status(403).send({message:"Invalid token"})
+                req.user=user;
+            next()
+        })
+
+
+    } catch (error) {
+        
+    }
+}
 
 
 
@@ -91,5 +108,16 @@ router.post('/uploadImage', upload.single('photo'), examController.uploadImage);
 router.post('/profile', examController.postDataToProfile);
 router.get('/image/:email', examController.retrieveImge);
 router.post('/uploadResume',resumeUpload.single('resume'),examController.uploadResume)
+
+
+
+//registrations
+router.post('/registration',examController.Registration)
+
+//login
+router.post('/login',examController.Login)
+
+
+
 
 module.exports = router;

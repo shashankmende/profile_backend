@@ -106,7 +106,7 @@ const authenticateToken = async(req,res,next)=>{
 // Routes
 router.post('/uploadImage', upload.single('photo'), examController.uploadImage);
 router.post('/profile', examController.postDataToProfile);
-router.get('/image/:email', examController.retrieveImge);
+router.get('/image/:email', examController.retrieveProfileDetails);
 router.post('/uploadResume',resumeUpload.single('resume'),examController.uploadResume)
 
 

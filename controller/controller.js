@@ -80,7 +80,9 @@ const postDataToProfile = async (req, res) => {
     }
 };
 
-const retrieveImge = async (req, res) => {
+
+
+const retrieveProfileDetails = async (req, res) => {
     try {
         const { email } = req.params;
         const person = await profileModel.findOne({ "personal.email": email });
@@ -89,20 +91,29 @@ const retrieveImge = async (req, res) => {
             return res.status(404).send({ message: "Person not found" });
         }
 
-        const imagePath = person.personal.photoPreview;
-        if (!imagePath) {
-            return res.status(404).send({ message: "Image path not found" });
+        // Construct the full URL for the image if photoPreview is present
+        let imageUrl = null;
+        if (person.personal.photoPreview) {
+            imageUrl = `${req.protocol}://${req.get('host')}/images/${path.basename(person.personal.photoPreview)}`;
         }
 
-        // Construct the full URL for the image
-        const imageUrl = `${req.protocol}://${req.get('host')}/images/${path.basename(imagePath)}`;
-
-        res.send({ message: "Image path retrieved successfully", url: imageUrl }).status(200);
+        // Return all profile details along with the image URL
+        res.status(200).send({
+            message: "Profile details retrieved successfully",
+            profile: {
+                personal: person.personal,
+                // education: person.education,
+                url: imageUrl
+            }
+        });
     } catch (error) {
-        console.error("Error retrieving image:", error);
+        console.error("Error retrieving profile details:", error);
         res.status(500).send({ message: "Internal server error" });
     }
 };
+
+module.exports = { retrieveProfileDetails };
+
 
 
 const uploadResume =async(req,res)=>{
@@ -178,7 +189,7 @@ const Login = async(req,res)=>{
 module.exports = {
     uploadImage,
     postDataToProfile,
-    retrieveImge,
+    retrieveProfileDetails,
     uploadResume,
     Registration,
     Login
